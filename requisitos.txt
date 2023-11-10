@@ -9,7 +9,7 @@ pydantic==1.9.2
 python-dotenv==0.20.0
 sniffio==1.2.0
 SQLAlchemy==1.4.50
-starlette==0.31.1
+starlette==0.19.1
 typing_extensions==4.8.0
 uvicorn==0.23.2
 websockets==12.0
