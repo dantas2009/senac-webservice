@@ -46,7 +46,7 @@ jobs:
 #      run: pytest
 
     - name: Create artifact
-      uses: actions/upload-artificat@v3
+      uses: actions/upload-artifact@v3
       with:
         name: python-app
         path: ./
