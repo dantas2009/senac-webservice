@@ -139,3 +139,4 @@ jobs:
 
           #Deploy artifact
           scp -r ./python-app/* 20.172.203.173:/app/data/
+ 
