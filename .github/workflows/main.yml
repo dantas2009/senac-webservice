@@ -59,6 +59,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
+    needs: build
 
     strategy:
       fail-fast: false
@@ -83,7 +84,7 @@ jobs:
       security-events: write
     name: StackHawk
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, sast]
 
     steps:
       - name: Checkout code
