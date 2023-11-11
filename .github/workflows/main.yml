@@ -129,14 +129,13 @@ jobs:
       - name: Deploy to server
         env:
             SSH: ${{ secrets.AZURE_SSH }}
-            HOST: ${{ secrets.AZURE_APP }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           #Add SHH key known hosts
-          ssh-keyscan $HOST >> ~/.ssh/known_hosts
+          ssh-keyscan ${{ secrets.AZURE_APP }} >> ~/.ssh/known_hosts
 
           #Deploy artifact
-          scp -r ./python-app/* $HOST:/app/data/
+          scp -r ./python-app/* ${{ secrets.AZURE_APP }}:/app/data/
