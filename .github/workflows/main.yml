@@ -135,7 +135,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
           #Add SHH key known hosts
-          ssh-keyscan ${{ secrets.AZURE_APP }} >> ~/.ssh/known_hosts
+          ssh-keyscan 20.172.203.173 >> ~/.ssh/known_hosts
 
           #Deploy artifact
-          scp -r ./python-app/* ${{ secrets.AZURE_APP }}:/app/data/
+          scp -r ./python-app/* 20.172.203.173:/app/data/
