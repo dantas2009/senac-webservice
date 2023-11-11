@@ -132,7 +132,7 @@ jobs:
             HOST: ${{ secrets.AZURE_APP }}
         run: |
           mkdir -p ~/.ssh
-          echo "$KEY" > ~/.ssh/id_rsa
+          echo "$SSH" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           #Add SHH key known hosts
