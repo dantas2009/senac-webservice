@@ -1,0 +1,135 @@
+name: DevOps CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.10
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+#  test:
+#    name: Test
+#    runs-on: ubuntu-latest
+#
+#    needs: build
+#
+#    steps:
+#    - name: Checkout code
+#      uses: actions/checkout@v3
+#
+#    - name: Set up Python
+#      uses: actions/setup-python@v3
+#      with:
+#        python-version: 3.10
+#
+#    - name: Install dependencies
+#      run: |
+#        pip install -r requirements.txt
+
+#    - name: Run tests
+#      run: pytest
+
+    - name: Create artifact
+      uses: actions/upload-artificat@v3
+      with:
+        name: python-app
+        path: ./
+
+  sast:
+    name: CodeQL
+    runs-on: ubuntu-latest
+
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up CodeQL
+      uses: github/codeql-action/init@v2
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    - name: Run CodeQL analysis
+      uses: github/codeql-action/analyze@v2
+
+  dast:
+    permissions:
+      contents: read
+      security-events: write
+    name: StackHawk
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: python-app
+
+      - name: Install Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.10
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Start your service
+        run: python your_service.py &
+
+      - name: Run HawkScan
+        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
+        continue-on-error: true
+        with:
+          apiKey: ${{ secrets.HAWK_API_KEY }}
+          codeScanningAlerts: true
+          githubToken: ${{ github.token }}
+
+  deploy:
+    name: Deploy Azure
+    runs-on: ubuntu-latest
+
+    needs: [sast, dast]
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: python-app
+
+      - name: Deploy to server
+        env:
+            SSH: ${{ secrets.AZURE_SSH }}
+            HOST: ${{ secrets.AZURE_APP }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          #Add SHH key known hosts
+          ssh-keyscan $HOST >> ~/.ssh/known_hosts
+
+          #Deploy artifact
+          scp -r ./python-app/* $HOST:/app/data/
