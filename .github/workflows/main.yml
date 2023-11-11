@@ -101,12 +101,10 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
 
-      - name: Install uvicorn
-        run: |
-          pip install uvicorn
-
       - name: Start your service
-        run: uvicorn app.main:app
+        run: |
+          source venv/bin/activate
+          uvicorn app.main:app
 
       - name: Run HawkScan
         uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
