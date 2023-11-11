@@ -104,7 +104,7 @@ jobs:
       - name: Start your service
         run: |
           source venv/bin/activate
-          uvicorn app.main:app
+          uvicorn app.main:app &
 
       - name: Run HawkScan
         uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
