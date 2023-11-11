@@ -138,8 +138,8 @@ jobs:
           ssh-keyscan 20.172.203.173 >> ~/.ssh/known_hosts
 
           # Debug: List contents of the directory
-          ls -la ./python-app/
+          ls -la ./
 
           #Deploy artifact
-          scp -r ./python-app/ azureuser@20.172.203.173:/app/data/
+          scp -r ./ azureuser@20.172.203.173:/app/data/
  
