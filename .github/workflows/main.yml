@@ -141,5 +141,5 @@ jobs:
           ls -la ./
 
           #Deploy artifact
-          scp -r ./ azureuser@20.172.203.173:/app/data/
+          scp -r ./app/ azureuser@20.172.203.173:/app/data/
  
