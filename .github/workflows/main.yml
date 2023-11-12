@@ -129,20 +129,21 @@ jobs:
       - name: Deploy to server
         env:
             SSH: ${{ secrets.AZURE_SSH }}
+            HOST: ${{ secrets.AZURE_APP }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           #Add SHH key known hosts
-          ssh-keyscan 20.172.203.173 >> ~/.ssh/known_hosts
+          ssh-keyscan $HOST >> ~/.ssh/known_hosts
 
           #Add permission to user azureuser
-          ssh azureuser@20.172.203.173 'sudo chown -R azureuser:azureuser /app/data/app/*'
+          ssh azureuser@$HOST 'sudo chown -R azureuser:azureuser /app/data/app/*'
 
           #Deploy artifact
-          scp -r ./app/ azureuser@20.172.203.173:/app/data/
+          scp -r ./app/ azureuser@$HOST:/app/data/
 
           #Restart service
-          ssh azureuser@20.172.203.173 'sudo systemctl restart gunicorn.service'
+          ssh azureuser@$HOST 'sudo systemctl restart gunicorn.service'
  
