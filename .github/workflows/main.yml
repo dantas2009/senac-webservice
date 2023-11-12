@@ -137,8 +137,8 @@ jobs:
           #Add SHH key known hosts
           ssh-keyscan 20.172.203.173 >> ~/.ssh/known_hosts
 
-          # Debug: List contents of the directory
-          ls -la ./
+          #Add permission to user azureuser
+          ssh azureuser@20.172.203.173 'chown -R azureuser:azureuser /app/data/*'
 
           #Deploy artifact
           scp -r ./app/ azureuser@20.172.203.173:/app/data/
