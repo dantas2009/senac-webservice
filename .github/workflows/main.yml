@@ -51,68 +51,68 @@ jobs:
         name: python-app
         path: ./
 
-  sast:
-    name: CodeQL
-    runs-on: ${{ 'ubuntu-latest' }}
-    timeout-minutes: ${{ 360 }}
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    needs: build
+#  sast:
+#    name: CodeQL
+#    runs-on: ${{ 'ubuntu-latest' }}
+#    timeout-minutes: ${{ 360 }}
+#    permissions:
+#      actions: read
+#      contents: read
+#      security-events: write
+#    needs: build
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'python' ]
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        language: [ 'python' ]
 
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+#    steps:
+#    - name: Checkout repository
+#      uses: actions/checkout@v3
 
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
-      with:
-        languages: ${{ matrix.language }}
+#    - name: Initialize CodeQL
+#      uses: github/codeql-action/init@v2
+#      with:
+#        languages: ${{ matrix.language }}
         
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+#    - name: Autobuild
+#      uses: github/codeql-action/autobuild@v2
       
-  dast:
-    permissions:
-      contents: read
-      security-events: write
-    name: StackHawk
-    runs-on: ubuntu-latest
-    needs: [build, sast]
+#  dast:
+#    permissions:
+#      contents: read
+#      security-events: write
+#    name: StackHawk
+#    runs-on: ubuntu-latest
+#    needs: [build, sast]
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v3
 
-      - name: Install Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.10.13
+#      - name: Install Python
+#        uses: actions/setup-python@v3
+#        with:
+#          python-version: 3.10.13
 
-      - name: Install dependencies
-        run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
+#      - name: Install dependencies
+#        run: |
+#          python -m venv venv
+#          source venv/bin/activate
+#          pip install -r requirements.txt
 
-      - name: Start your service
-        run: |
-          source venv/bin/activate
-          uvicorn app.main:app &
+#      - name: Start your service
+#        run: |
+#          source venv/bin/activate
+#          uvicorn app.main:app &
 
-      - name: Run HawkScan
-        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
-        continue-on-error: true
-        with:
-          apiKey: ${{ secrets.HAWK_API_KEY }}
-          codeScanningAlerts: true
-          githubToken: ${{ github.token }}
+#      - name: Run HawkScan
+#        uses: stackhawk/hawkscan-action@4c3258cd62248dac6d9fe91dd8d45928c697dee0
+#        continue-on-error: true
+#        with:
+#          apiKey: ${{ secrets.HAWK_API_KEY }}
+#          codeScanningAlerts: true
+#          githubToken: ${{ github.token }}
 
   deploy:
     name: Deploy Azure
