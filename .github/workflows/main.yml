@@ -138,7 +138,7 @@ jobs:
           ssh-keyscan 20.172.203.173 >> ~/.ssh/known_hosts
 
           #Add permission to user azureuser
-          ssh azureuser@20.172.203.173 'chown -R azureuser:azureuser /app/data/app/*'
+          ssh azureuser@20.172.203.173 'sudo chown -R azureuser:azureuser /app/data/app/*'
 
           #Deploy artifact
           scp -r ./app/ azureuser@20.172.203.173:/app/data/app
