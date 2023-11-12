@@ -141,5 +141,5 @@ jobs:
           ssh azureuser@20.172.203.173 'sudo chown -R azureuser:azureuser /app/data/app/*'
 
           #Deploy artifact
-          scp -r ./app/ azureuser@20.172.203.173:/app/data/app
+          scp -r ./app/ azureuser@20.172.203.173:/app/data/
  
