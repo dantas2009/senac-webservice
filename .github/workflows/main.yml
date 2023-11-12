@@ -142,4 +142,7 @@ jobs:
 
           #Deploy artifact
           scp -r ./app/ azureuser@20.172.203.173:/app/data/
+
+          #Restart service
+          ssh azureuser@20.172.203.173 'sudo systemctl restart gunicorn.service'
  
