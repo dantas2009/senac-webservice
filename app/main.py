@@ -6,4 +6,4 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"senac": "Pós Full-Stack-2"}
+    return {"senac": "Pós Full-Stack"}
