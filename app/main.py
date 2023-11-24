@@ -7,7 +7,7 @@ app = FastAPI()
 @app.get("/")
 def root():
     return {
-        "senac": "Pós Full-Stack - DevOps 2",
+        "senac": "Pós Full-Stack - Projeto Final",
         "alunos": [
             {"nome": "Daniel Bernado"},
             {"nome": "Gabriel Dantas"}
