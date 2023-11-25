@@ -146,10 +146,10 @@ jobs:
           scp -r ./app/ azureuser@$HOST:/app/data/
 
           # Ativar o ambiente virtual
-          source /app/data/venv/bin/activate
+          ssh azureuser@$HOST 'source /app/data/venv/bin/activate'
 
           # Instalar os requisitos do pip
-          pip install -r /app/data/requirements.txt
+          ssh azureuser@$HOST 'pip install -r /app/data/requirements.txt'
 
           # Reiniciar serviço
           ssh azureuser@$HOST 'sudo systemctl restart gunicorn.service'
