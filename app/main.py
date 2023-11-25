@@ -42,7 +42,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 @app.get("/", tags=["Default"])
 def root():
     return {
-        "senac": "Pós Full-Stack - DevOps",
+        "senac": "Pós Full-Stack - Projeto Final",
         "alunos": [
             {"nome": "Daniel Bernado"},
             {"nome": "Gabriel Dantas"}
