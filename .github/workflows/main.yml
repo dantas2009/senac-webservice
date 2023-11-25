@@ -131,19 +131,26 @@ jobs:
             SSH: ${{ secrets.AZURE_SSH }}
             HOST: ${{ secrets.AZURE_APP }}
         run: |
+          # Add chave SSH
           mkdir -p ~/.ssh
           echo "$SSH" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-          #Add SHH key known hosts
+          # Add host em known hosts
           ssh-keyscan $HOST >> ~/.ssh/known_hosts
 
-          #Add permission to user azureuser
+          # Add permissão para o usuário azureuser
           #ssh azureuser@$HOST 'sudo chown -R azureuser:azureuser /app/data/app/*'
 
-          #Deploy artifact
+          # Deploy artifact
           scp -r ./app/ azureuser@$HOST:/app/data/
 
-          #Restart service
+          # Ativar o ambiente virtual
+          source /app/data/app/venv/bin/activate
+
+          # Instalar os requisitos do pip
+          pip install -r /app/data/requirements.txt
+
+          # Reiniciar serviço
           ssh azureuser@$HOST 'sudo systemctl restart gunicorn.service'
  
