@@ -146,7 +146,7 @@ jobs:
           scp -r ./app/ azureuser@$HOST:/app/data/
 
           # Ativar o ambiente virtual
-          source /app/data/app/venv/bin/activate
+          source /app/data/venv/bin/activate
 
           # Instalar os requisitos do pip
           pip install -r /app/data/requirements.txt
