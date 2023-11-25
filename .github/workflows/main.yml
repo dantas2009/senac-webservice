@@ -142,7 +142,7 @@ jobs:
           ssh azureuser@$HOST 'sudo chown -R azureuser:azureuser /app/data/app/*'
 
           #Deploy artifact
-          scp -r ./app/ azureuser@$HOST:/app/data/
+          sudo scp -r ./app/ azureuser@$HOST:/app/data/
 
           #Restart service
           ssh azureuser@$HOST 'sudo systemctl restart gunicorn.service'
