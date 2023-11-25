@@ -187,8 +187,8 @@ async def buscar_todos(
         valor = pesquisa.replace(".", "").replace(",", ".").replace(" ", "").replace("R", "").replace("$", "").rstrip('0').rstrip('.')
         despesas_query = despesas_query.filter(
             or_(
-                Despesas.despesa.ilike(f"%{pesquisa}%"),
-                Despesas.valor.ilike(f"%{valor}%")
+                Despesas.despesa.ilike(f'%{pesquisa}%'),
+                Despesas.valor.ilike(f'%{valor}%')
             )
         )
 

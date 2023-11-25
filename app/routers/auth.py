@@ -162,7 +162,9 @@ async def recuperar_senha(recuperar: Recupear, db: db_dependency ):
     
     token = jwt.encode(encode, SECRET_KEY, algorithm=SECRET_ALGORITHM)
 
-    reset_link = f"{os.getenv("URL_RESET_PASSWORD")}?token={token}"
+    URL_RESET_PASSWORD = os.getenv("URL_RESET_PASSWORD")
+
+    reset_link = f'{URL_RESET_PASSWORD}?token={token}'
 
     await recuperar_senha_mail(
         "Recuperar Senha", 
@@ -201,7 +203,7 @@ GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 @router.post("/google/token")
 async def login_google():
     return {
-        "url": f"https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
+        "url": f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline'
     }
 
 @router.post("/google/login")
@@ -216,5 +218,5 @@ async def auth_google(code: str):
     }
     response = requests.post(token_url, data=data)
     access_token = response.json().get("access_token")
-    user_info = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers={"Authorization": f"Bearer {access_token}"})
+    user_info = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers={"Authorization": f'Bearer {access_token}'})
     return user_info.json()
