@@ -93,7 +93,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v3
         with:
-          python-version: 3.10.13
+          python-version: 3.10.12
 
       - name: Install dependencies
         run: |
@@ -113,11 +113,11 @@ jobs:
           apiKey: ${{ secrets.HAWK_API_KEY }}
           codeScanningAlerts: true
           githubToken: ${{ github.token }}
+          
   deploy:
     name: Deploy Azure
     runs-on: ubuntu-latest
-    #needs: [build]
-    needs: [sast, dast]
+    needs: [build, sast, dast]
 
     steps:
       - name: Download artifact
