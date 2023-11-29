@@ -103,7 +103,7 @@ jobs:
 
       - name: Criar arquivo .env
         run: |
-          echo ${{ secrets.HAWK_ENV }} >> /.env
+          echo ${{ secrets.HAWK_ENV }} >> .env
       
       - name: Start your service
         run: |
