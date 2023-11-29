@@ -101,6 +101,10 @@ jobs:
           source venv/bin/activate
           pip install -r requirements.txt
 
+      - name: Criar arquivo .env
+        run: |
+          echo ${{ secrets.HAWK_ENV }} >> .env
+      
       - name: Start your service
         run: |
           source venv/bin/activate
