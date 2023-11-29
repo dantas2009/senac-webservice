@@ -104,6 +104,8 @@ jobs:
       - name: Criar arquivo .env
         run: |
           echo ${{ secrets.HAWK_ENV }} >> $GITHUB_WORKSPACE/.env
+          cat $GITHUB_WORKSPACE/.env
+          ls -al
       
       - name: Start your service
         run: |
