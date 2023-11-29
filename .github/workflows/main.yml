@@ -103,8 +103,9 @@ jobs:
 
       - name: Criar arquivo .env
         run: |
-          echo ${{ secrets.HAWK_ENV }} >> $GITHUB_WORKSPACE/.env
-          cat $GITHUB_WORKSPACE/.env
+          echo "SQLALCHEMY_DATABASE_URL='${{ secrets.ENV_SQL }}'" >> $GITHUB_WORKSPACE/.env
+          echo "SECRET_KEY='${{ secrets.ENV_SECRET_KEY }}'" >> $GITHUB_WORKSPACE/.env
+          echo "SECRET_ALGORITHM='${{ secrets.ENV_SECRET_ALGORITHM }}'" >> $GITHUB_WORKSPACE/.env
           ls -al
       
       - name: Start your service
