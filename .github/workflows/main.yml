@@ -106,7 +106,9 @@ jobs:
           echo "SQLALCHEMY_DATABASE_URL='${{ secrets.ENV_SQL }}'" >> $GITHUB_WORKSPACE/.env
           echo "SECRET_KEY='${{ secrets.ENV_SECRET_KEY }}'" >> $GITHUB_WORKSPACE/.env
           echo "SECRET_ALGORITHM='${{ secrets.ENV_SECRET_ALGORITHM }}'" >> $GITHUB_WORKSPACE/.env
-          ls -al
+          echo "URL_RESET_PASSWORD='${{ secrets.ENV_URL_RESET_PASSWORD }}'" >> $GITHUB_WORKSPACE/.env
+          echo "MAIL_USERNAME='${{ secrets.ENV_MAIL_USERNAME }}'" >> $GITHUB_WORKSPACE/.env
+          echo "MAIL_PASSWORD='${{ secrets.ENV_MAIL_PASSWORD }}'" >> $GITHUB_WORKSPACE/.env
       
       - name: Start your service
         run: |
