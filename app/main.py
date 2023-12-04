@@ -49,5 +49,6 @@ def root():
         "alunos": [
             {"nome": "Daniel Bernado"},
             {"nome": "Gabriel Dantas"}
-        ]
+        ],
+        "professor": "Marcelo Vidu"
     }
