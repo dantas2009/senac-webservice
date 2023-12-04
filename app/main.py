@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Annotated
 from sqlalchemy.orm import Session
+
+from app.routers import dashboard
 from .routers import auth, conta, icone, categoria, despesa
 from .models import Base
 from .database import engine, SessionLocal
@@ -22,6 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(dashboard.router)
 app.include_router(conta.router)
 app.include_router(despesa.router)
 app.include_router(categoria.router)

@@ -60,6 +60,9 @@ def calcular_proximo_mes(data_referencia, dia_vencimento):
 async def add(despesa: Despesa, usuario: auth_dependency, db: db_dependency ):
     id_usuario = usuario['id_usuario']
 
+    if despesa.pagamento == '':
+        despesa.pagamento = None
+
     despesa_db = Despesas(
         id_usuario = id_usuario,
         id_categoria = despesa.id_categoria,
@@ -95,7 +98,7 @@ async def add_parcelado(despesa_parcelada: DespesaParcelada, usuario: auth_depen
             despesa = f'{despesa} - {i} de {parcelas}',
             valor = valor,
             vencimento = vencimento,
-            pagamento = ''
+            pagamento = None
         )
 
         db.add(despesa_db)
@@ -116,18 +119,19 @@ async def editar(id_despesa: int, despesa: DespesaPagamento, usuario: auth_depen
 
     return {}
 
-
 @router.put("/{id_despesa}")
 async def editar(id_despesa: int, despesa: Despesa, usuario: auth_dependency, db: db_dependency ):
     id_usuario = usuario['id_usuario']
 
-    despesa_db = db.query(Despesas).filter((Despesas.id_usuario == id_usuario) and (Despesas.id_despesa == id_despesa) ).first()
+    despesa_db = db.query(Despesas).filter(and_(Despesas.id_usuario == id_usuario, Despesas.id_despesa == id_despesa)).first()
 
     despesa_db.id_categoria = despesa.id_categoria
     despesa_db.despesa = despesa.despesa
     despesa_db.valor = despesa.valor
     despesa_db.vencimento = despesa.vencimento
     despesa_db.pagamento = despesa.pagamento
+    if despesa.pagamento == '':
+        despesa_db.pagamento = None
     
     db.commit()
 
@@ -160,11 +164,16 @@ async def buscar_todos(
     categoria: int = 0, 
     pesquisa: str = '',
     inicio: str = '',
-    fim: str = ''):
+    fim: str = '',
+    pendente: bool = False):
     
     id_usuario = usuario['id_usuario']
     despesas_query = (db.query(Despesas).filter(Despesas.id_usuario == id_usuario).options(joinedload(Despesas.categorias).joinedload(Categorias.icones)))
     
+    #Filtro somente pagamento pendente
+    if pendente:
+        despesas_query = despesas_query.filter(Despesas.pagamento == None)
+
     #Filtro por categoria
     if categoria != 0:
         despesas_query = despesas_query.filter(Despesas.id_categoria == categoria)
@@ -192,11 +201,30 @@ async def buscar_todos(
             )
         )
 
-    despesas = despesas_query.order_by(desc(Despesas.id_despesa)).offset(skip).limit(limit).all()
+    despesas = despesas_query.order_by(desc(Despesas.vencimento)).offset(skip).limit(limit).all()
     total = despesas_query.count()
+    valor_total = 0
+    valor_pago = 0
+    valor_aberto = 0
+
+    for despesa in despesas:
+        valor_total += despesa.valor
+        if despesa.pagamento is None:
+            valor_aberto += despesa.valor
+
+    valor_pago = valor_total - valor_aberto
+
+    valor_total_reais = f"R$ {valor_total}".replace(".", ",")
+    valor_pago_reais = f"R$ {valor_pago}".replace(".", ",")
+    valor_aberto_reais = f"R$ {valor_aberto}".replace(".", ",")
 
     despesa_serialized = [despesa.serialize() for despesa in despesas]
 
-
-    return {  'despesas': despesa_serialized , "total": total }
+    return {  
+        'despesas': despesa_serialized , 
+        "total": total, 
+        "valor_total": valor_total_reais, 
+        "valor_pago": valor_pago_reais, 
+        "valor_aberto": valor_aberto_reais,
+    }
 

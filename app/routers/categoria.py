@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
-from sqlalchemy import func, or_
+from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session, joinedload
 from passlib.context import CryptContext
 from starlette import status
@@ -81,13 +81,14 @@ async def buscar_todos(usuario: auth_dependency, db: db_dependency):
     return categorias
 
 @router.get("/disponivel", status_code=status.HTTP_200_OK)
-async def buscar_disponivel(usuario: auth_dependency,
-                       db: db_dependency,
-                       skip: int = Query(0, ge=0),
-                       limit: int = Query(10, le=100)):
+async def buscar_disponivel(usuario: auth_dependency, db: db_dependency):
     
     id_usuario = usuario['id_usuario']
-    categorias = db.query(Categorias).filter(((Categorias.id_usuario == id_usuario) | (Categorias.id_usuario == None)) & (Categorias.status)).options(joinedload(Categorias.icones)).offset(skip).limit(limit).all()
+    categorias = db.query(Categorias).filter(
+                and_(
+                    or_(Categorias.id_usuario == id_usuario, Categorias.id_usuario == None), 
+                    Categorias.status
+                )).options(joinedload(Categorias.icones)).all()
 
     return categorias
 

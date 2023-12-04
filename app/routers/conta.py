@@ -61,7 +61,7 @@ async def editar(usuario_update: Usuario, usuario: auth_dependency, db: db_depen
         usuario_db.senha = bcrypt_context.hash(usuario_update.senha)
     else: 
         if usuario_update.senha:
-            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Senha antiga inválida")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Senha antiga inválida")
     
     db.commit()
 

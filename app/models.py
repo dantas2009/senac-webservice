@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from .database import Base
-from sqlalchemy import Column, Integer, String, Boolean, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Float, DECIMAL, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from babel.numbers import format_currency
 from babel import Locale
@@ -13,7 +13,7 @@ class Usuarios(Base):
     nome = Column(String(256), nullable=False)
     email = Column(String(256), unique=True, nullable=False)
     senha = Column(String(2048), nullable=False)
-    limite_gastos = Column(Float, nullable=False)
+    limite_gastos = Column(DECIMAL(10, 2), nullable=False)
     status = Column(Boolean, default=True)
     criado = Column(DateTime, nullable=False)
 
@@ -34,7 +34,7 @@ class Despesas(Base):
     id_usuario = Column(Integer, ForeignKey('usuarios.id_usuario'), nullable=True)
     id_categoria = Column(Integer, ForeignKey('categorias.id_categoria'))
     despesa = Column(String(256), nullable=False)
-    valor = Column(Float, nullable=False)
+    valor = Column(DECIMAL(10, 2), nullable=False)
     vencimento = Column(DateTime, nullable=False)
     pagamento = Column(DateTime)
 
