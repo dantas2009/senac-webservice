@@ -46,7 +46,6 @@ class DespesaParcelada(BaseModel):
 class DespesaPagamento(BaseModel):
     pagamento: str
 
-
 db_dependency = Annotated[Session, Depends(get_db)]
 auth_dependency = Annotated[dict, Depends(auth.buscar_usuario_auth)]
 

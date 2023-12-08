@@ -78,6 +78,7 @@ async def dashboard_cards(
     despesas_mes_atual = (
         db.query(Despesas)
         .filter(
+            Despesas.id_usuario == id_usuario,
             Despesas.vencimento >= primeiro_dia_mes_atual,
             Despesas.vencimento <= ultimo_dia_mes_atual
         )
@@ -86,6 +87,7 @@ async def dashboard_cards(
     despesas_mes_anterior = (
         db.query(Despesas)
         .filter(
+            Despesas.id_usuario == id_usuario,
             Despesas.vencimento >= primeiro_dia_mes_anterior,
             Despesas.vencimento <= ultimo_dia_mes_anterior
         )

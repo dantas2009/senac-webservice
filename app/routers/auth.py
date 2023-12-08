@@ -1,19 +1,20 @@
 from datetime import timedelta, datetime
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
+import httpx
 from pydantic import BaseModel
 import requests
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from app.database import SessionLocal
-from app.models import Usuarios
+from app.models import LoginSocial, Usuarios
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 import os
 from app.send_email import recuperar_senha_mail
-
 
 router = APIRouter(
     prefix='/auth',
@@ -46,6 +47,10 @@ class NovaSenha(BaseModel):
     token: str
     senha: str
 
+class LoginSocialRequest(BaseModel):
+    token: str
+    provedor: str
+
 def get_db():
     db = SessionLocal()
     try:
@@ -53,9 +58,7 @@ def get_db():
     finally:
         db.close()
 
-
 db_dependency = Annotated[Session, Depends(get_db)]
-
 
 def auth_usuario(email: str, senha: str, db):
     usuario = db.query(Usuarios).filter(Usuarios.email == email).first()
@@ -75,16 +78,12 @@ async def buscar_usuario_auth(token: Annotated[str, Depends(oauth2_bearer)]):
         email: str = payload.get('sub')
         id_usuario: int = payload.get('id')
         if email is None or id_usuario is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail='Could not validate user.'
-            )
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         
         return {'email': email, 'id_usuario': id_usuario}
     
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
 async def buscar_usuario_token(token: str):
     try:
@@ -100,9 +99,59 @@ async def buscar_usuario_token(token: str):
         return {'email': email, 'id_usuario': id_usuario}
     
     except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
+async def auth_usuario_token(login: LoginSocialRequest, db):
+    
+    login_social = db.query(LoginSocial).filter(LoginSocial.token == login.token).first()
+
+    if login_social:
+        usuario = db.query(Usuarios).filter(Usuarios.id_usuario == login_social.id_usuario).first()
+        if usuario:
+            return usuario
+
+    provedor_usuario = { 'email' : '' }
+    if login.provedor.lower() == 'google':
+        provedor_usuario = await google_login(login.token)
+    
+    if login.provedor.lower() == 'facebook':
+        provedor_usuario = await facebook_login(login.token)
+    
+    usuario = db.query(Usuarios).filter(Usuarios.email == provedor_usuario['email']).first()
+    if not usuario:
+        usuario = Usuarios(nome=provedor_usuario['name'], email=provedor_usuario['email'], senha='', limite_gastos=0, status=True, criado=datetime.now())
+        db.add(usuario)
+
+    login_social = db.query(LoginSocial).filter(and_(LoginSocial.id_usuario == usuario.id_usuario, LoginSocial.provedor == login.provedor)).first()
+    if login_social:
+        login_social.token = login.token
+    else:
+        login_social = LoginSocial(id_usuario=usuario.id_usuario, token=login.token, provedor=login.provedor.lower())
+        db.add(login_social)
+
+    db.commit()
+
+    return usuario
+
+async def google_login(token: str):
+    try:
+        response = httpx.get(f"https://www.googleapis.com/oauth2/v3/tokeninfo?id_token={token}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise HTTPException(status_code=response.status_code, detail="Error retrieving Google user data")
+    except httpx.HTTPError:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+async def facebook_login(token: str):
+    try:
+        response = httpx.get(f"https://graph.facebook.com/me?fields=id,name,email&access_token={token}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise HTTPException(status_code=response.status_code, detail="Error retrieving Facebook user data")
+    except httpx.HTTPError:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/token", response_model=Token)
 async def token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
@@ -110,7 +159,7 @@ async def token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
     usuario = auth_usuario(form_data.username, form_data.password, db)
     
     if not usuario:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     
     token = criar_access_token(usuario.email, usuario.id_usuario)
 
@@ -193,31 +242,14 @@ async def recuperar_senha(nova_senha: NovaSenha, db: db_dependency ):
 
     return {'access_token': token, 'token_type': 'bearer'}
 
+@router.post("/social")
+async def login_social(login: LoginSocialRequest, db: db_dependency ):
 
-#GOOGLE AUTH
+    usuario = await auth_usuario_token(login, db)
+    
+    if not usuario:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
+    
+    token = criar_access_token(usuario.email, usuario.id_usuario)
 
-
-#GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-#GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-#GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
-
-#@router.post("/google/token")
-#async def login_google():
-#    return {
-#        "url": f'https://accounts.google.com/o/oauth2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline'
-#    }
-
-#@router.post("/google/login")
-#async def auth_google(code: str):
-#    token_url = "https://accounts.google.com/o/oauth2/token"
-#    data = {
-#        "code": code,
-#        "client_id": GOOGLE_CLIENT_ID,
-#        "client_secret": GOOGLE_CLIENT_SECRET,
-#        "redirect_uri": GOOGLE_REDIRECT_URI,
-#        "grant_type": "authorization_code",
-#    }
-#    response = requests.post(token_url, data=data)
-#    access_token = response.json().get("access_token")
-#    user_info = requests.get("https://www.googleapis.com/oauth2/v1/userinfo", headers={"Authorization": f'Bearer {access_token}'})
-#    return user_info.json()
+    return {'access_token': token, 'token_type': 'bearer'}

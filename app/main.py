@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import Annotated
 from sqlalchemy.orm import Session
 
-from app.routers import dashboard
+from app.routers import chatgpt, dashboard
 from .routers import auth, conta, icone, categoria, despesa
 from .models import Base
 from .database import engine, SessionLocal
@@ -29,6 +29,7 @@ app.include_router(conta.router)
 app.include_router(despesa.router)
 app.include_router(categoria.router)
 app.include_router(icone.router)
+app.include_router(chatgpt.router)
 
 Base.metadata.create_all(bind=engine)
 

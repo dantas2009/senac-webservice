@@ -27,6 +27,14 @@ class Usuarios(Base):
             'limite_gastos': self.limite_gastos,
         }
 
+class LoginSocial(Base):
+    __tablename__ = 'login_social'
+
+    id_login_social = Column(Integer, primary_key=True, index=True)
+    id_usuario = Column(Integer, ForeignKey('usuarios.id_usuario'), nullable=True)
+    token = Column(String(2048), nullable=False)
+    provedor = Column(String(256), unique=False)
+    
 class Despesas(Base):
     __tablename__ = 'despesas'
 
