@@ -33,14 +33,25 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Instalar Python
+    - name: Install Python
       uses: actions/setup-python@v3
       with:
-        python-version: 3.10.13
+        python-version: 3.10.12
 
-    - name: Instalar dependencias
+    - name: Install dependencies
       run: |
+        python -m venv venv
+        source venv/bin/activate
         pip install -r requirements.txt
+
+    - name: Criar arquivo .env
+      run: |
+        echo "SQLALCHEMY_DATABASE_URL='${{ secrets.ENV_SQL }}'" >> $GITHUB_WORKSPACE/.env
+        echo "SECRET_KEY='${{ secrets.ENV_SECRET_KEY }}'" >> $GITHUB_WORKSPACE/.env
+        echo "SECRET_ALGORITHM='${{ secrets.ENV_SECRET_ALGORITHM }}'" >> $GITHUB_WORKSPACE/.env
+        echo "URL_RESET_PASSWORD='${{ secrets.ENV_URL_RESET_PASSWORD }}'" >> $GITHUB_WORKSPACE/.env
+        echo "MAIL_USERNAME='${{ secrets.ENV_MAIL_USERNAME }}'" >> $GITHUB_WORKSPACE/.env
+        echo "MAIL_PASSWORD='${{ secrets.ENV_MAIL_PASSWORD }}'" >> $GITHUB_WORKSPACE/.env
 
     - name: Rodar testes
       run: pytest tests/
