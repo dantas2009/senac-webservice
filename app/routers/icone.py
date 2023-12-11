@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from starlette import status
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import Categorias, Usuarios, Icones
 from app.routers import auth
 
@@ -15,13 +15,6 @@ router = APIRouter(
     prefix='/icones',
     tags=['Icones']
 )
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
 auth_dependency = Annotated[dict, Depends(auth.buscar_usuario_auth)]

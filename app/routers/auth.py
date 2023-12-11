@@ -8,7 +8,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import LoginSocial, Usuarios
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -50,13 +50,6 @@ class NovaSenha(BaseModel):
 class LoginSocialRequest(BaseModel):
     token: str
     provedor: str
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
 

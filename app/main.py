@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from app.routers import chatgpt, dashboard
 from .routers import auth, conta, icone, categoria, despesa
 from .models import Base
-from .database import engine, SessionLocal
+from .database import engine, get_db
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
@@ -33,23 +33,15 @@ app.include_router(chatgpt.router)
 
 Base.metadata.create_all(bind=engine)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-db_dependency = Annotated[Session, Depends(get_db)]
-
+#db_dependency = Annotated[Session, Depends(get_db)]
 
 @app.get("/", tags=["Default"])
 def root():
     return {
-        "senac": "Pós Full-Stack - DevOps",
+        "senac": "Pós Full-Stack - Projeto Final",
         "alunos": [
             {"nome": "Daniel Bernado"},
             {"nome": "Gabriel Dantas"}
         ],
-        "professor": "Marcelo Vidu"
+        "professor": "Marcelo Batalha"
     }

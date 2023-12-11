@@ -6,15 +6,13 @@ from sqlalchemy import outerjoin
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from starlette import status
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import Usuarios
 from app.routers import auth
 from datetime import datetime
 
-
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
-
 
 router = APIRouter(
     prefix='/conta',
@@ -27,14 +25,6 @@ class Usuario(BaseModel):
     senha: str
     senha_antiga: str
     limite_gastos: float
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 db_dependency = Annotated[Session, Depends(get_db)]
 auth_dependency = Annotated[dict, Depends(auth.buscar_usuario_auth)]

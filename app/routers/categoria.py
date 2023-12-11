@@ -6,7 +6,7 @@ from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import Session, joinedload
 from passlib.context import CryptContext
 from starlette import status
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import Icones, Categorias
 from app.routers import auth
 
@@ -17,13 +17,6 @@ router = APIRouter(
     prefix='/categorias',
     tags=['Categorias']
 )
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 class Categoria(BaseModel):
     id_icone: int

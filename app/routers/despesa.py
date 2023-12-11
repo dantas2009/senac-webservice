@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from starlette import status
-from app.database import SessionLocal
+from app.database import get_db
 from app.models import Categorias, Despesas, Icones
 from app.routers import auth
 from dateutil.relativedelta import relativedelta
@@ -20,13 +20,6 @@ router = APIRouter(
     prefix='/despesas',
     tags=['Despesas']
 )
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 class Despesa(BaseModel):
     id_categoria: int

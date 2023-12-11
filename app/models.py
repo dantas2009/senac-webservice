@@ -1,10 +1,10 @@
 from pydantic import BaseModel
-from .database import Base
 from sqlalchemy import Column, Integer, String, Boolean, Float, DECIMAL, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, DeclarativeBase
 from babel.numbers import format_currency
-from babel import Locale
 
+class Base(DeclarativeBase):
+    pass
 
 class Usuarios(Base):
     __tablename__ = 'usuarios'
