@@ -170,14 +170,17 @@ async def dashboard_pie_mes(
         .all()
     )
 
+    despesas_mes_json = []
+    for categoria, valor in despesas_mes:
+        despesas_mes_json.append({ 'categoria': categoria, 'valor' : float(valor)} )
+
+
     return {
-        'despesas_mes' : despesas_mes,
+        'despesas_mes' : despesas_mes_json,
     }
 
 @router.get("/pie_ano", status_code=status.HTTP_200_OK)
-async def dashboard_pie_ano(
-    usuario: auth_dependency, 
-    db: db_dependency, ):
+async def dashboard_pie_ano(usuario: auth_dependency, db: db_dependency):
 
     id_usuario = usuario['id_usuario']
 
@@ -189,14 +192,18 @@ async def dashboard_pie_ano(
     db.query(Categorias.categoria, func.sum(Despesas.valor).label("valor"))
         .outerjoin(Despesas, Categorias.id_categoria == Despesas.id_categoria)
         .filter(
+            Despesas.id_usuario == id_usuario,
             Despesas.vencimento >= ano_inicio,
-            Despesas.vencimento <= ano_fim,
-            Despesas.id_usuario == id_usuario
+            Despesas.vencimento <= ano_fim
         )
         .group_by(Categorias.categoria)
         .all()
     )
 
+    despesas_ano_json = []
+    for categoria, valor in despesas_ano:
+        despesas_ano_json.append({ 'categoria': categoria, 'valor' : float(valor)} )
+
     return {
-        'despesas_ano' : despesas_ano,
+        'despesas_ano' : despesas_ano_json,
     }

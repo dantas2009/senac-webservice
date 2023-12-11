@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
-from sqlalchemy import and_, func, or_
+from sqlalchemy import and_, desc, or_
 from sqlalchemy.orm import Session, joinedload
 from passlib.context import CryptContext
 from starlette import status
@@ -69,7 +69,7 @@ async def buscar(id_categoria: int, usuario: auth_dependency, db: db_dependency)
 async def buscar_todos(usuario: auth_dependency, db: db_dependency):
     
     id_usuario = usuario['id_usuario']
-    categorias = db.query(Categorias).filter((Categorias.id_usuario == id_usuario) | (Categorias.id_usuario == None)).options(joinedload(Categorias.icones)).all()
+    categorias = db.query(Categorias).filter(or_(Categorias.id_usuario == id_usuario, Categorias.id_usuario == None)).options(joinedload(Categorias.icones)).order_by(desc(Categorias.id_categoria)).all()
 
     return categorias
 
