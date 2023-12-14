@@ -128,3 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 *.db
+
+# tests report e sqlite
+report
+report/
+report/*
+testdb.sqlite
