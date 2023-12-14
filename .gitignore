@@ -132,5 +132,4 @@ dmypy.json
 # tests report e sqlite
 report
 report/
-report/*
-testdb.sqlite
+testedb.sqlite
